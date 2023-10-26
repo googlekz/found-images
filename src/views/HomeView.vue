@@ -1,18 +1,50 @@
+<script lang="ts" setup>
+import HomeSearch from '@/components/blocks/HomeSearch.vue';
+import ImagesBlock from '@/components/blocks/ImagesBlock.vue';
+import { computed, reactive } from 'vue';
+import { IImages } from '../../app/api/interfaces/images';
+
+interface IProps {
+  images: [] | IImages[];
+}
+
+const props = withDefaults(defineProps<IProps>(), {
+    images: () => [],
+});
+
+const homeData = reactive({
+    search: '',
+});
+
+/**
+ * Поиск фотографий по описанию
+ */
+const searchedArray = computed(() => {
+    if (homeData.search) {
+        return props.images.filter((item) => {
+            return item.alt_description.includes(homeData.search);
+        });
+    }
+    return props.images;
+});
+</script>
+
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <HomeSearch v-model="homeData.search" />
+    <ImagesBlock
+      class="home__content"
+      :images="searchedArray"
+    />
   </div>
 </template>
 
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
-
-@Options({
-  components: {
-    HelloWorld,
-  },
-})
-export default class HomeView extends Vue {}
-</script>
+<style lang="scss" scoped>
+.home {
+  &__content {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 114px auto;
+  }
+}
+</style>
